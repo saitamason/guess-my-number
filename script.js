@@ -1,6 +1,3 @@
-// TODO 1. Ustawić sprawdzanie dla wartości poza 1-20 zarówno w JS, jak i w HTML.
-// TODO 2. Dodać efekty w CSS.
-
 'use strict';
 
 // Elements
@@ -10,6 +7,7 @@ const number = document.querySelector('.number');
 const message = document.querySelector('.message');
 const guess = document.querySelector('.guess');
 const check = document.querySelector('.check');
+const numberForm = document.querySelector('#number-form');
 const score = document.querySelector('.score');
 const highscore = document.querySelector('.highscore');
 
@@ -55,45 +53,48 @@ again.addEventListener('click', function () {
 });
 
 // Check
-check.addEventListener('click', () => {
-  const guessNumber = guess.value;
+check.addEventListener('click', e => {
+  e.preventDefault();
+  const guessNumber = Number(guess.value);
 
-  if (currentScore > 1) {
-    // No number
-    if (!guessNumber) {
-      message.textContent = 'No number!';
-    } else {
-      // Correct number
-      if (Number(guessNumber) === secretNumber && !guessState) {
-        message.textContent = 'Correct number!';
-        number.textContent = secretNumber;
-        body.style.backgroundColor = '#60b347';
-        guessState = true;
+  if (guessState) {
+    message.textContent = 'Hit "Again" to reset';
+    return;
+  }
 
-        if (currentScore > highestScore)
-          highestScore = highscore.textContent = currentScore;
+  if (guessNumber < 1 || guessNumber > 20 || !guessNumber) {
+    message.textContent = 'The number must be between 1 and 20!';
+    return;
+  }
 
-        // Too high
-      } else {
-        if (Number(guessNumber) > secretNumber && !guessState) {
-          message.textContent = 'Too high!';
-          lowerScore();
-
-          // Too low
-        } else if (Number(guessNumber) < secretNumber && !guessState) {
-          message.textContent = 'Too low!';
-          lowerScore();
-
-          // Hit again tip
-        } else {
-          message.textContent = 'Hit "Again" to reset';
-        }
-      }
-    }
-
-    // You lost
-  } else {
+  if (currentScore <= 1) {
     message.textContent = 'You lost!';
-    if (currentScore > 0) lowerScore();
+    number.textContent = secretNumber;
+    body.style.backgroundColor = 'red';
+    lowerScore();
+    guessState = true;
+    return;
+  }
+
+  if (guessNumber === secretNumber && !guessState) {
+    message.textContent = 'Correct number!';
+    number.textContent = secretNumber;
+    body.style.backgroundColor = '#60b347';
+    guessState = true;
+    if (currentScore > highestScore)
+      highestScore = highscore.textContent = currentScore;
+    return;
+  }
+
+  if (guessNumber > secretNumber && !guessState) {
+    message.textContent = 'Too high!';
+    lowerScore();
+    return;
+  }
+
+  if (guessNumber < secretNumber && !guessState) {
+    message.textContent = 'Too low!';
+    lowerScore();
+    return;
   }
 });
